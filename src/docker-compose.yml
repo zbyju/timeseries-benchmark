@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  influxdb:
+    image: influxdb:latest
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg12
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+
+  questdb:
+    image: questdb/questdb
+    ports:
+      - "8812:8812"
+      - "9000:9000"
+    volumes:
+      - questdb_data:/root/.questdb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  postgresql:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
+volumes:
+  influxdb_data:
+  timescaledb_data:
+  questdb_data:
+  mongodb_data:
+  postgresql_data:
+
