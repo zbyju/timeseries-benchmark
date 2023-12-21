@@ -4,10 +4,44 @@ import (
 	"math"
 	"math/rand"
 	"time"
+
+	"benchmark/logic"
 )
 
+func GenerateData(numSnapshots int, numSimulations int, numStations int) [][][]logic.Snapshot {
+	var result [][][]logic.Snapshot
+
+	for stationId := 0; stationId < numStations; stationId++ {
+		var simulations [][]logic.Snapshot
+		date := time.Now()
+		for simulation := 0; simulation < numSimulations; simulation++ {
+			batterySimulation := SimulateBatteryVoltageWithFailure(14, numSnapshots)
+			dailySimulation := SimulateDailyTemperature(25, numSnapshots)
+			heatingSimulation := SimulateTemperatureWithControl(25, numSnapshots, "heating", 30)
+			coolingSimulation := SimulateTemperatureWithControl(25, numSnapshots, "cooling", -15)
+
+			var samples []logic.Snapshot
+			for i := 0; i < numSnapshots; i++ {
+				sample := logic.Snapshot{
+					StationID:          stationId,
+					CreatedAt:          date,
+					Voltage:            batterySimulation[i],
+					OutsideTemperature: dailySimulation[i],
+					HeatingTemperature: heatingSimulation[i],
+					CoolingTemperature: coolingSimulation[i],
+				}
+				samples = append(samples, sample)
+				date = date.Add(-10 * time.Minute)
+			}
+			simulations = append(simulations, samples)
+		}
+		result = append(result, simulations)
+	}
+	return result
+}
+
 func SimulateBatteryVoltageWithFailure(voltage float64, n int) []float64 {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	result := make([]float64, 0, n)
 	currentVoltage := voltage
 	count := 0
@@ -41,7 +75,7 @@ func SimulateBatteryVoltageWithFailure(voltage float64, n int) []float64 {
 }
 
 func SimulateDailyTemperature(startTemp float64, n int) []float64 {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	result := make([]float64, 0, n)
 	currentTemp := startTemp
 	period := float64(n)
@@ -57,7 +91,7 @@ func SimulateDailyTemperature(startTemp float64, n int) []float64 {
 }
 
 func SimulateTemperatureWithControl(startTemp float64, n int, controlMode string, tempChange float64) []float64 {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	result := make([]float64, 0, n)
 	currentTemp := startTemp
 	period := float64(n)
