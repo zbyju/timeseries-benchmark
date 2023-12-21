@@ -9,7 +9,7 @@ services:
       - influxdb_data:/var/lib/influxdb
 
   timescaledb:
-    image: timescale/timescaledb:latest-pg12
+    image: timescale/timescaledb:latest-pg14
     ports:
       - "5432:5432"
     environment:
@@ -22,6 +22,7 @@ services:
     ports:
       - "8812:8812"
       - "9000:9000"
+      - "9009:9009"
     volumes:
       - questdb_data:/root/.questdb
 
